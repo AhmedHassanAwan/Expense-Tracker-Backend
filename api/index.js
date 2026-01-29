@@ -1,8 +1,8 @@
 
 
-import authRoutes from './routes/authRoutes.js'
-import incomeRoutes from './routes/incomeRoutes.js'
-import expenseRoutes from './routes/expenseRoutes.js'
+import authRoutes from '../routes/authRoutes.js'
+import incomeRoutes from '../routes/incomeRoutes.js'
+import expenseRoutes from '../routes/expenseRoutes.js'
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from "cors";
