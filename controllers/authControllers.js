@@ -1,5 +1,100 @@
 
 
+// import User from '../models/Auth.js';
+// import jwt from 'jsonwebtoken';
+// import dotenv from "dotenv";
+// import bcrypt from "bcryptjs";
+
+// dotenv.config();
+
+
+// const generateToken = (user) => {
+//   return jwt.sign(
+//     { id: user._id },
+//     process.env.JWT_SECRET,
+//     { expiresIn: '1d' }
+//   );
+// }
+
+// const registerUser = async (req, res) => {
+//   const { fullName, email, password, profileImageUrl } = req.body;
+
+
+//   if (!fullName || !email || !password) {
+//     return res.status(400).json({ message: "Please fill all required fields" });
+//   }
+
+//   try {
+
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser) {
+//       return res.status(400).json({ message: "User already exists" });
+//     }
+
+//     const user = await User.create({ fullName, email, password, profileImageUrl });
+//     res.status(201).json({
+//       message: "User registered successfully",
+//       id: user._id,
+//       user,
+//       token: generateToken(user._id)
+//     });
+//   } catch (error) {
+//     console.error("Error registering user:", error);
+//     res.status(500).json({ message: "Error registering user" });
+//   }
+// };
+
+
+// const loginUser = async (req, res) => {
+//   const { email, password } = req.body;
+
+//   if (!email || !password)
+//     return res.status(400).json({ message: "Please fill all required fields" });
+
+//   try {
+//     const user = await User.findOne({ email });
+//     if (!user)
+//       return res.status(400).json({ message: "Invalid email or password" });
+
+
+//     const isMatch = await bcrypt.compare(password, user.password);
+//     if (!isMatch)
+//       return res.status(400).json({ message: "Invalid email or password" });
+
+
+//     const token = generateToken(user);
+//     res.status(200).json({
+//       message: "User logged in successfully",
+//       id: user._id,
+//       user,
+//       token,
+//     });
+//   } catch (error) {
+//     console.error("Error logging in user:", error);
+//     res.status(500).json({ message: "Error logging in user" });
+//   }
+// };
+
+// const getUserInfo = async (req, res) => {
+//   try {
+//     const user = await User.findById(req.user.id).select('-password');
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+//     res.status(200).json({
+//       message: "User information retrieved successfully",
+//       user
+//     });
+//   } catch (error) {
+//     console.error("Error registering user:", error);
+//     res.status(500).json({ message: "Error registering user" });
+//   }
+// };
+
+// export { registerUser, loginUser, getUserInfo };
+
+
+
 import User from '../models/Auth.js';
 import jwt from 'jsonwebtoken';
 import dotenv from "dotenv";
@@ -7,44 +102,52 @@ import bcrypt from "bcryptjs";
 
 dotenv.config();
 
-
 const generateToken = (user) => {
   return jwt.sign(
     { id: user._id },
     process.env.JWT_SECRET,
     { expiresIn: '1d' }
   );
-}
+};
 
+// ================= REGISTER =================
 const registerUser = async (req, res) => {
   const { fullName, email, password, profileImageUrl } = req.body;
-
 
   if (!fullName || !email || !password) {
     return res.status(400).json({ message: "Please fill all required fields" });
   }
 
   try {
-
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    const user = await User.create({ fullName, email, password, profileImageUrl });
+    // 🔐 HASH PASSWORD
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+      fullName,
+      email,
+      password: hashedPassword,
+      profileImageUrl
+    });
+
     res.status(201).json({
       message: "User registered successfully",
       id: user._id,
       user,
-      token: generateToken(user._id)
+      token: generateToken(user)
     });
+
   } catch (error) {
     console.error("Error registering user:", error);
     res.status(500).json({ message: "Error registering user" });
   }
 };
 
-
+// ================= LOGIN =================
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -56,38 +159,42 @@ const loginUser = async (req, res) => {
     if (!user)
       return res.status(400).json({ message: "Invalid email or password" });
 
-
+    // 🔐 COMPARE HASHED PASSWORD
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
       return res.status(400).json({ message: "Invalid email or password" });
 
-
     const token = generateToken(user);
+
     res.status(200).json({
       message: "User logged in successfully",
       id: user._id,
       user,
       token,
     });
+
   } catch (error) {
     console.error("Error logging in user:", error);
     res.status(500).json({ message: "Error logging in user" });
   }
 };
 
+// ================= GET USER =================
 const getUserInfo = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+
     res.status(200).json({
       message: "User information retrieved successfully",
       user
     });
+
   } catch (error) {
-    console.error("Error registering user:", error);
-    res.status(500).json({ message: "Error registering user" });
+    console.error("Error getting user info:", error);
+    res.status(500).json({ message: "Error getting user info" });
   }
 };
 
