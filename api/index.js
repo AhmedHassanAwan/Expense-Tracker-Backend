@@ -44,7 +44,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 mongoose.connect(process.env.MONGO_URI)
-  .then(() =>    console.log("✅ MongoDB Connected   database" , process.env.MONGO_URI))
+  .then(() =>    console.log("✅ MongoDB Connected database"))
   .catch((err) => console.error(" MongoDB Error:", err));
 
 const PORT = process.env.PORT || 3000;
