@@ -18,11 +18,15 @@ const registerUser = async (req, res) => {
   const { fullName, email, password, profileImageUrl } = req.body;
 
   if (!fullName || !email || !password) {
+    console.log(req.body);
+    
     return res.status(400).json({ message: "Please fill all required fields" });
   }
 
   try {
     const existingUser = await User.findOne({ email });
+    console.log("email" , existingUser);
+    
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
@@ -36,6 +40,9 @@ const registerUser = async (req, res) => {
       password: hashedPassword,
       profileImageUrl
     });
+
+    console.log("user ===>" , user);
+    
 
     res.status(201).json({
       message: "User registered successfully",
