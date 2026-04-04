@@ -10,7 +10,9 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 
-dotenv.config();
+dotenv.config({
+  path:"../.env"
+});
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -44,7 +46,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 mongoose.connect(process.env.MONGO_URI)
-  .then(() =>    console.log("✅ MongoDB Connected database"))
+  .then(() =>    console.log("✅ MongoDB Connected database" , process.env.MONGO_URI))
   .catch((err) => console.error(" MongoDB Error:", err));
 
 const PORT = process.env.PORT || 3000;
